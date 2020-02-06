@@ -1,0 +1,26 @@
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1 class="centered">Report</h1>
+    <div id="left-header">
+        <p>Organization: {{organization}}</p>
+        <p>Reported: {{reported_at}}</p>
+        <p>Created: {{created_at}}</p>
+    </div>
+    <h2>Inventory</h2>
+    <table class="bordered-table">
+        <tr>
+            <th>Item name</th>
+            <th>Price</th>
+        </tr>
+        {% for item in inventory %}
+        <tr>
+            <td>{{item.name}}</td>
+            <td>${{item.price}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

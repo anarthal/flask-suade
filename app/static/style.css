@@ -1,0 +1,17 @@
+.centered {
+    text-align: center;
+}
+
+#left-header p {
+    text-align: right;
+    margin: 0.25em;
+}
+
+.bordered-table th, .bordered-table td  {
+    border: 1px solid black;
+    padding: 0.5em;
+}
+
+table.bordered-table {
+    border-collapse: collapse;
+}
