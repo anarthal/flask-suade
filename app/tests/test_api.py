@@ -1,4 +1,3 @@
-from flask_testing import TestCase
 import unittest
 import json
 from PyPDF2 import PdfFileReader
@@ -7,7 +6,7 @@ from app import app, db
 from app.models import Report
 
 
-class TestPDFEndpoint(TestCase):
+class TestPDFEndpoint(unittest.TestCase):
     @staticmethod
     def setup_db():
         with app.app_context():
@@ -24,11 +23,12 @@ class TestPDFEndpoint(TestCase):
             })))
             db.session.commit()
 
-    def create_app(self):
+    def setUp(self):
         app.config['TESTING'] = True
         app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost/suade'
+        app.testing = True
+        self.client = app.test_client()
         self.setup_db()
-        return app
 
     def test_existing_report(self):
         response = self.client.get('/reports/pdf/4')
