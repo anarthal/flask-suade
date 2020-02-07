@@ -2,11 +2,12 @@ import unittest
 import json
 from PyPDF2 import PdfFileReader
 from io import BytesIO
+from xml.etree import ElementTree
 from app import app, db
 from app.models import Report
 
 
-class TestPDFEndpoint(unittest.TestCase):
+class EndpointTest(unittest.TestCase):
     @staticmethod
     def setup_db():
         with app.app_context():
@@ -30,6 +31,8 @@ class TestPDFEndpoint(unittest.TestCase):
         self.client = app.test_client()
         self.setup_db()
 
+
+class TestPDFEndpoint(EndpointTest):
     def test_existing_report(self):
         response = self.client.get('/reports/pdf/4')
         self.assertEqual(response.status_code, 200)
@@ -44,6 +47,29 @@ class TestPDFEndpoint(unittest.TestCase):
 
     def test_non_existing_report(self):
         response = self.client.get('/reports/pdf/900')
+        self.assertEqual(response.status_code, 404)
+
+
+class TestXMLEndpoint(EndpointTest):
+    def test_existing_report(self):
+        response = self.client.get('/reports/xml/4')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content_type, 'text/xml; charset=utf-8')
+        tree = ElementTree.fromstring(response.data.decode())
+        self.assertEqual(tree.tag, 'report')
+        self.assertEqual(tree.find('id').text, '4')
+        self.assertEqual(tree.find('organization').text, 'Flowers Inc.')
+        self.assertEqual(tree.find('reported_at').text, '2017-11-19')
+        self.assertEqual(tree.find('created_at').text, '2017-11-23')
+        items = tree.find('inventory').findall('item')
+        itemdict = { item.find('name').text: float(item.find('price').text) for item in items }
+        self.assertEqual(itemdict, {
+            'Flower pot': 2.0,
+            'Roses, 24': 50.0
+        })
+
+    def test_non_existing_report(self):
+        response = self.client.get('/reports/xml/900')
         self.assertEqual(response.status_code, 404)
 
 if __name__ == '__main__':
